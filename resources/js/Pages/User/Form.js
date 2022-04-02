@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Button from '@/Components/Button';
 import Checkbox from '@/Components/Checkbox';
 import Authenticated from '@/Layouts/Authenticated';
+import SectionHeader from '@/Components/SectionHeader';
 import Input from '@/Components/Input';
 import Label from '@/Components/Label';
 import { Inertia } from '@inertiajs/inertia';
@@ -9,7 +10,9 @@ import { Head, Link, useForm } from '@inertiajs/inertia-react';
 import { SwallRequest } from '@/Functions/SwallRequest';
 
 export default function Form(props) {
-    const { data, setData, reset } = useForm({
+    // console.log('user form props', props)
+
+    const { data, setData, processing, errors, reset } = useForm({
         name: props.method == 'PUT' ? props.user.name : '',
         email: props.method == 'PUT' ? props.user.email : '',
         password: '',
@@ -17,7 +20,20 @@ export default function Form(props) {
         roles: props.method == 'PUT' ? props.userRoles : [],
     });
 
-    const handleChange = (e) => {
+    useEffect(() => {
+        return () => {
+            reset('password')
+        }
+    }, [])
+
+    const [redirect, setRedirect] = useState(false)
+    useEffect(() => {
+        if(redirect === true) {
+            Inertia.get(route('user.index'))
+        }
+    }, [redirect])
+
+    const onHandleChange = (e) => {
         if(e.target.type === 'checkbox') {
             let newRoles = [...data.roles, e.target.value]
             if (data.roles.includes(e.target.value)) {
@@ -29,12 +45,11 @@ export default function Form(props) {
         }
     }
 
-    const [formErrors, setFormErrors] = useState([])
     const submit = (e) => {
         e.preventDefault()
 
         let formData = new FormData()
-        formData.append('_method', e.target.getAttribute('data-method'))
+        formData.append('_method', props.method)
         for (const [key, value] of Object.entries(data)) {
             if(key == 'roles') {
                 formData.append(`${key}`, JSON.stringify(value))
@@ -43,118 +58,120 @@ export default function Form(props) {
             }
         }
         console.log('formData',formData)
-        SwallRequest(e.target.action, formData, {'errors':setFormErrors, 'redirect':setRedirect})
+        SwallRequest(props.action, formData, {'errors':errors, 'redirect':setRedirect})
     }
 
-    const [redirect, setRedirect] = useState(false)
-    useEffect(() => {
-        if(redirect === true) {
-            Inertia.get(route('user.index'))
-        }
-    }, [redirect])
-
-    useEffect(() => {
-        return () => {
-            reset('password')
-        }
-    }, [])
-
-    // console.log(data)
+    console.log(data)
 
     return (
         <Authenticated
             auth={props.auth}
             errors={props.errors}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">User Form</h2>}
+            // header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">User Form</h2>}
         >
-            <Head title="User" />
+            <Head title="User Form" />
 
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-5">
-                        <form onSubmit={submit} action={props.action} data-method={props.method}>
-                            <div className="grid grid-cols-6 gap-4">
-                                <div className="col-span-3">
-                                    <Label forInput="name" value="Name" />
+            <section className="section">
+                <SectionHeader title="User Management" />
+                <div className="section-body">
+                    <h2 className="section-title">Title</h2>
+                    <p className="section-lead">Example of some Bootstrap table components.</p>
+
+                    <div className="card p-3">
+                        <form onSubmit={submit} className="needs-validation">
+                            <div className="row">
+                                <div className="form-group col-6">
+                                    <Label forInput="name" value="Name" className={'control-label'} />
                                     <Input
                                         type="text"
                                         name="name"
                                         value={data.name}
-                                        className="mt-1 block w-full"
-                                        handleChange={handleChange}
+                                        autoComplete="current-email"
+                                        handleChange={onHandleChange}
                                         required={true}
+                                        error={errors.name}
                                     />
-                                    {formErrors.name && <p className="text-sm text-red-500">{formErrors.name[0]}</p>}
                                 </div>
-                                <div className="col-span-3">
-                                    <Label forInput="email" value="Email" />
+                                <div className="form-group col-6">
+                                    <Label forInput="email" value="Email" className={'control-label'} />
                                     <Input
                                         type="email"
                                         name="email"
                                         value={data.email}
-                                        className="mt-1 block w-full"
-                                        handleChange={handleChange}
+                                        autoComplete="current-email"
+                                        handleChange={onHandleChange}
                                         required={true}
+                                        error={errors.email}
                                     />
-                                    {formErrors.email && <p className="text-sm text-red-500">{formErrors.email[0]}</p>}
                                 </div>
-                                <div className="col-span-3">
-                                    <Label forInput="password" value="Password" />
+                                <div className="form-group col-6">
+                                    <Label 
+                                        forInput="password" 
+                                        value="Password" 
+                                        className={'control-label'} 
+                                    />
                                     <Input
                                         type="password"
                                         name="password"
                                         value={data.password}
-                                        className="mt-1 block w-full"
-                                        handleChange={handleChange}
+                                        autoComplete="current-password"
+                                        handleChange={onHandleChange}
                                         required={props.method == 'POST'}
+                                        error={errors.password}
                                     />
-                                    {formErrors.password && <p className="text-sm text-red-500">{formErrors.password[0]}</p>}
                                 </div>
-                                <div className="col-span-3">
-                                    <Label forInput="password_confirmation" value="Confirm Password" />
+                                <div className="form-group col-6">
+                                    <Label 
+                                        forInput="password" 
+                                        value="Confirm Password" 
+                                        className={'control-label'} 
+                                    />
                                     <Input
-                                        type="password"
+                                        type="password_confirmation"
                                         name="password_confirmation"
                                         value={data.password_confirmation}
-                                        className="mt-1 block w-full"
-                                        handleChange={handleChange}
-                                        required={props.method == 'POST'}
+                                        autoComplete="current-password_confirmation"
+                                        handleChange={onHandleChange}
+                                        required={data.password != ""}
+                                        error={errors.password_confirmation}
                                     />
                                 </div>
-                                <div className="col-span-6">
-                                    <Label forInput="roles" value="Roles" />
-                                    {formErrors.roles && <p className="text-sm text-red-500">{formErrors.roles[0]}</p>}
-                                    <div className="my-3"></div>
-                                    {props.roles.map(role => {
+                                <div className="form-group col-12">
+                                    <Label  
+                                        value="Roles" 
+                                        className={'control-label'} 
+                                    />
+                                    
+                                    {errors.roles && <div className="text-danger">{errors.roles}</div>}
+
+                                    {props.roles.map((role, index) => {
                                         return(
-                                            <div className="mt-3" key={role.id}>
-                                                <label className="flex items-center">
-                                                    <Checkbox 
-                                                        name="roles" 
-                                                        value={role.name} 
-                                                        handleChange={handleChange} 
-                                                        checked={data.roles.includes(role.name)} 
-                                                    />
-                                                    <span className="text-md font-semibold ml-2">{role.name}</span>
-                                                </label>
+                                            <div key={index} className="custom-control custom-checkbox">
+                                                <Checkbox 
+                                                    id={role.id}
+                                                    name="roles" 
+                                                    value={role.name} 
+                                                    checked={data.roles.includes(role.name)}
+                                                    handleChange={onHandleChange} 
+                                                    label={role.name}
+                                                />
                                             </div>
                                         )
                                     })}
                                 </div>
-                            </div>
-
-                            <div className="sm:flex sm:flex-row-reverse mt-3">
-                                <Button className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-500 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
-                                    Save
-                                </Button>
-                                <Link href={route('user.index')} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                                    Cancel
-                                </Link>
+                                <div className="form-group col-12">
+                                    <Button className="btn btn-primary px-4" processing={processing}>
+                                        Save
+                                    </Button>
+                                    <Link href={route('user.index')} className="btn btn-secondary ml-1">
+                                        Cancel
+                                    </Link>
+                                </div>
                             </div>
                         </form>
                     </div>
                 </div>
-            </div>
+            </section>
         </Authenticated>
     );
 }

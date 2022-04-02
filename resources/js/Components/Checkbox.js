@@ -1,15 +1,19 @@
 import React from 'react';
 
-export default function Checkbox({ name, value, handleChange, checked=false, disabled=false }) {
+export default function Checkbox({ name, id, value, handleChange, checkboxClass, labelClass, label, checked=false, disabled=false }) {
     return (
-        <input
-            type="checkbox"
-            name={name}
-            value={value}
-            className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-            onChange={(e) => handleChange(e)}
-            checked={checked}
-            disabled={disabled}
-        />
+        <React.Fragment>
+            <input
+                type="checkbox"
+                id={id}
+                name={name}
+                value={value}
+                className={checkboxClass || `custom-control-input`}
+                onChange={async (e) => handleChange(e)}
+                checked={checked}
+                disabled={disabled}
+            />
+            <label className={labelClass || `custom-control-label`} htmlFor={id}>{label}</label>
+        </React.Fragment>
     );
 }

@@ -62,18 +62,22 @@ class UserController extends Controller
 
     public function store(UserRequest $request)
     {
-        if(! auth()->user()->can('create-user')) {
-            abort(403);
-        }
-
         DB::beginTransaction();
         try {
+            if(! auth()->user()->can('create-user')) {
+                throw new \Exception("Permission denied !");
+            }
+
+            $roles = json_decode(request('roles'));
+            if(count($roles) < 1) {
+                throw new \Exception("Roles is required !");
+            }
+            
             $valid = $request->validated();
             $valid['password'] = Hash::make($valid['password']);
-        	unset($valid['roles']);
             
             $user = User::create($valid);
-            $user->assignRole(json_decode(request('roles')));
+            $user->assignRole($roles);
 
             DB::commit();
             return ['status' => true, 'message' => "User created"];
@@ -100,21 +104,25 @@ class UserController extends Controller
 
     public function update(UserRequest $request, $id)
     {
-        if(! auth()->user()->can('edit-user')) {
-            abort(403);
-        }
-
         DB::beginTransaction();
         try {
+            if(! auth()->user()->can('edit-user')) {
+                throw new \Exception("Permission denied !");
+            }
+
+            $roles = json_decode(request('roles'));
+            if(count($roles) < 1) {
+                throw new \Exception("Roles is required !");
+            }
+
             $valid = $request->validated();
-            unset($valid['roles']);
             if (request('password')) {
                 $valid['password'] = Hash::make(request('password'));
             }
 
             $user = User::findOrFail($id);
             $user->update($valid);
-            $user->syncRoles(json_decode(request('roles')));
+            $user->syncRoles($roles);
 
             DB::commit();
             return ['status' => true, 'message' => "User updated"];
@@ -126,12 +134,12 @@ class UserController extends Controller
 
     public function destroy($id)
     {
-        if(! auth()->user()->can('delete-user')) {
-            abort(403);
-        }
-
         DB::beginTransaction();
         try {
+            if(! auth()->user()->can('delete-user')) {
+                throw new \Exception("Permission denied !");
+            }
+            
             $user = User::findOrFail($id);
             $user->syncRoles([]);
             $user->delete();

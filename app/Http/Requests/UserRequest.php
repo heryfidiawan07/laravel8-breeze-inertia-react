@@ -28,7 +28,6 @@ class UserRequest extends FormRequest
         $rules = [
             'name' => ['required', Rule::unique('users')->ignore($this->user)],
             'email' => ['required','email', Rule::unique('users')->ignore($this->user)],
-            'roles' => ['required'],
         ];
 
         if ($this->method() == 'POST') {
@@ -38,7 +37,7 @@ class UserRequest extends FormRequest
         if ($this->method() == 'PUT' && $this->password != null) {
             $rules['password'] = ['required','confirmed','min:6'];
         }
-
+        
         return $rules;
     }
 

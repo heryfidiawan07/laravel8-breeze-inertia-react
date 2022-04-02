@@ -1,9 +1,16 @@
 import React from 'react';
 
-export default function Label({ forInput, value, className, children }) {
+export default function Label({ forInput, value, className, children, rightValue }) {
     return (
-        <label htmlFor={forInput} className={`block font-medium text-sm text-gray-700 ` + className}>
-            {value ? value : { children }}
-        </label>
+        <React.Fragment>
+            <label htmlFor={forInput} className={` ` + className}>
+                {value ? value : { children }}
+            </label>
+            {rightValue && (
+                <div className="float-right">
+                    {rightValue}
+                </div>
+            )}
+        </React.Fragment>
     );
 }

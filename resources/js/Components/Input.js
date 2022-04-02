@@ -9,6 +9,7 @@ export default function Input({
     required,
     isFocused,
     handleChange,
+    error,
 }) {
     const input = useRef();
 
@@ -19,13 +20,13 @@ export default function Input({
     }, []);
 
     return (
-        <div className="flex flex-col items-start">
+        <React.Fragment>
             <input
                 type={type}
                 name={name}
                 value={value}
                 className={
-                    `border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm ` +
+                    `form-control ` +
                     className
                 }
                 ref={input}
@@ -33,6 +34,11 @@ export default function Input({
                 required={required}
                 onChange={(e) => handleChange(e)}
             />
-        </div>
+            {error && (
+                <div className={error.length ? `text-danger` : `invalid-feedback`}>
+                    {error}
+                </div>
+            )}
+        </React.Fragment>
     );
 }

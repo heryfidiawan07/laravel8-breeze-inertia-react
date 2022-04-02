@@ -13,12 +13,17 @@ const mix = require('laravel-mix');
 
 mix.js('resources/js/app.js', 'public/js')
     .react()
-    .postCss('resources/css/app.css', 'public/css', [
-        require('postcss-import'),
-        require('tailwindcss'),
-        require('autoprefixer'),
-    ])
+    // .postCss('resources/css/app.css', 'public/css', [
+    //     require('postcss-import'),
+    //     require('tailwindcss'),
+    //     require('autoprefixer'),
+    // ])
+    .sass('resources/sass/app.scss', 'public/css')
+    .sourceMaps()
     .webpackConfig(require('./webpack.config'));
+
+// mix.js(['./public/assets/js/stisla.js', './public/assets/js/scripts.js'], 'public/js/app.js');
+// // mix.styles(['./public/assets/css/style.css', './public/assets/css/components.css'], 'public/css/app.css');
 
 if (mix.inProduction()) {
     mix.version();

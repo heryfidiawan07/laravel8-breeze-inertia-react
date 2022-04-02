@@ -60,14 +60,17 @@ class RoleController extends Controller
 
     public function store(RoleRequest $request)
     {
-        if(! auth()->user()->can('create-role')) {
-            abort(403);
-        }
-
         DB::beginTransaction();
         try {
+            if(! auth()->user()->can('create-role')) {
+                throw new \Exception("Permission denied !");
+            }
+
+            if(count(json_decode(request('permissions'))) < 1) {
+                throw new \Exception("Permissions is required !");
+            }
+
             $valid = $request->validated();
-            unset($valid['permissions']);
             $valid['guard_name'] = request('guard_name') ?? 'web';
             
             $role = Role::create($valid);
@@ -88,9 +91,16 @@ class RoleController extends Controller
             abort(403);
         }
 
+        $permissions = $role->getPermissionNames()->toArray();
+        foreach($permissions as $key => $row) {
+            if(str_contains($row, '-menu')) {
+                unset($permissions[$key]);
+            }
+        }
+
         return inertia('Role/Form', [
             'role' => $role,
-            'rolePermissions' => $role->getPermissionNames()->toArray(),
+            'rolePermissions' => array_values($permissions),
             'action' => route('role.update', $role),
             'method' => 'PUT',
             'permissions' => Permission::has('children')->with('children')->get(),
@@ -99,17 +109,21 @@ class RoleController extends Controller
 
     public function update(RoleRequest $request, Role $role)
     {
-        if(! auth()->user()->can('edit-role')) {
-            abort(403);
-        }
-
         DB::beginTransaction();
         try {
+            if(! auth()->user()->can('edit-role')) {
+                throw new \Exception("Permission denied !");
+            }
+
+            if(count(json_decode(request('permissions'))) < 1) {
+                throw new \Exception("Permissions is required !");
+            }
+
             $valid = $request->validated();
-            unset($valid['permissions']);
             $valid['guard_name'] = request('guard_name') ?? 'web';
 
             $role->update($valid);
+            $role->syncPermissions([]);
             $permissions = $this->setPermissions(request('permissions'));
             $role->syncPermissions($permissions);
 
@@ -123,12 +137,12 @@ class RoleController extends Controller
 
     public function destroy(Role $role)
     {
-        if(! auth()->user()->can('delete-role')) {
-            abort(403);
-        }
-
         DB::beginTransaction();
         try {
+            if(! auth()->user()->can('delete-role')) {
+                throw new \Exception("Permission denied !");
+            }
+
             $role->syncPermissions([]);
             $role->delete();
 

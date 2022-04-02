@@ -35,12 +35,16 @@ const SwallRequest = (url, data=new FormData(), params=new Object()) => {
         console.log('response',response)
         swal.stopLoading()
         if(response.statusText == 'OK') {
-            return swal('Good job !', `${response.data.message}`, 'success')
+            return swal(
+                `${!response.data.status ? 'Oops.. !' : 'Good job !'}`, 
+                `${response.data.message}`, 
+                `${!response.data.status ? 'warning' : 'success'}`
+            )
             .then(() => {
-                if(params.hasOwnProperty('redirect')) {
+                if(params.hasOwnProperty('redirect') && response.data.status) {
                     params.redirect(true)
                 }
-                if(params.hasOwnProperty('reload')) {
+                if(params.hasOwnProperty('reload') && response.data.status) {
                     params.reload(params.params)
                 }
             })
