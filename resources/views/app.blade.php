@@ -48,6 +48,30 @@
         <!-- Template JS File -->
         {{-- <script src="{{ asset('assets/js/scripts.js') }}"></script> --}}
         <script src="{{ asset('assets/js/custom.js') }}"></script>
+        <script>
+            window.onresize = function() {
+                // console.log(window.innerWidth)
+                if(window.innerWidth < 1025) {
+                    document.body.className= 'sidebar-gone'
+                }else {
+                    document.body.className = ''
+                }
+            }
 
+            window.onclick = function(e) {
+                console.log(e.target.className)
+                const sidebarShow = document.body.classList.contains('sidebar-show')
+                const eClass = e.target.className
+                if(eClass != 'fas fa-bars' && eClass !=  'sidebar-parent' && eClass != 'nav-menu' && eClass != 'nav-link has-dropdown') {
+                    if(sidebarShow) {
+                        document.body.className = 'sidebar-gone'
+                    }
+                }
+            }
+
+            if(window.innerWidth < 1025) {
+                document.body.className = 'sidebar-gone'
+            }
+        </script>
     </body>
 </html>

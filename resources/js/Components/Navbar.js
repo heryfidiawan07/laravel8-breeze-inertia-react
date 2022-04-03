@@ -12,12 +12,27 @@ export default function Navbar({ auth }) {
         post(route('logout'));
     };
 
+    const sidebar = () => {
+        const sidebarGone = document.body.classList.contains('sidebar-gone')
+        // console.log(sidebarGone)
+        
+        if(window.innerWidth > 1024) {
+            document.body.classList.toggle('sidebar-mini')
+        }else {
+            if(sidebarGone) {
+                document.body.className= 'sidebar-show'
+            }else {
+                document.body.className= 'sidebar-gone'
+            }
+        }
+    }
+
     return (
         <nav className="navbar navbar-expand-lg main-navbar">
             <form className="form-inline mr-auto">
                 <ul className="navbar-nav mr-3">
                     <li>
-                        <a href="#" data-toggle="sidebar" className="nav-link nav-link-lg">
+                        <a href="#" data-toggle="sidebar" className="nav-link nav-link-lg" onClick={sidebar}>
                             <i className="fas fa-bars"></i>
                         </a>
                     </li>

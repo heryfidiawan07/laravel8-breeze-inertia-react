@@ -2783,7 +2783,8 @@ body.layout-3 .main-footer {
       position: relative;
       display: flex;
       align-items: center;
-      height: 50px;
+      /* height: 50px; */
+      height: 35px;
       padding: 0 20px;
       width: 100%;
       letter-spacing: .3px;
@@ -2805,7 +2806,8 @@ body.layout-3 .main-footer {
     .main-sidebar .sidebar-menu li.active a {
       color: #6777ef;
       font-weight: 600;
-      background-color: #f8fafb; }
+      /* background-color: #f8fafb;  */
+    }
       .main-sidebar .sidebar-menu li.active a.has-dropdown:after {
         transform: translate(0, -50%) rotate(90deg); }
     .main-sidebar .sidebar-menu li.active ul.dropdown-menu {
